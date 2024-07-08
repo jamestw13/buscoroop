@@ -8,3 +8,10 @@ body {
 #canvas {
   background: #212121;
 }
+
+.button {
+  z-index: 8;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}

@@ -1,5 +1,14 @@
 import * as THREE from "three";
 import { SceneManager, World } from "./SceneManager";
+
+const officeButton = document.createElement("button");
+officeButton.textContent = "Add office";
+officeButton.className = "button";
+officeButton.onclick = () => {
+  addOffice(5, -5, Math.PI / 2);
+};
+document.body.appendChild(officeButton);
+
 const canvas = document.getElementById("canvas");
 const sceneManager = new SceneManager(canvas);
 const world = new World(sceneManager.scene);

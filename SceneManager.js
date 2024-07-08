@@ -9,6 +9,7 @@ export class SceneManager {
     this.initCamera();
     this.initControls();
     this.raycaster = new THREE.Raycaster();
+    this.clock = new THREE.Clock();
   }
 
   initCamera() {
@@ -63,12 +64,17 @@ export class SceneManager {
   };
 
   animate = () => {
+    // const office = this.scene.children.find((child) => child.name === "office");
+    // if (office) {
+    //   office.position.x = Math.sin(this.clock.getElapsedTime()) * 2;
+    // }
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate);
   };
 
   start() {
+    console.log(this.scene);
     this.animate();
   }
 }
