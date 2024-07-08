@@ -1,41 +1,28 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/Addons.js';
-import { Corp } from './Corp.js';
-import { Space } from './Space.js';
+import * as THREE from "three";
+import { SceneManager, World } from "./SceneManager";
+const canvas = document.getElementById("canvas");
+const sceneManager = new SceneManager(canvas);
+const world = new World(sceneManager.scene);
+sceneManager.start();
 
-const canvas = document.getElementById('canvas');
-const aspectRatio = window.innerWidth / window.innerHeight;
-const scene = new THREE.Scene();
+// addEventListener("click", (e) => {
+//   const rect = canvas.getBoundingClientRect();
+//   const x = ((e.clientX - rect.left) / canvas.clientWidth) * 2 - 1;
+//   const y = -((e.clientY - rect.top) / canvas.clientHeight) * 2 + 1;
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-const mesh = new THREE.Mesh(geometry, material);
-scene.add(mesh);
+//   const vector = new THREE.Vector3(x, y, 0.5); // z is set to 0.5 to ensure it's in front of the camera
+//   vector.unproject(sceneManager.camera);
 
-const renderer = new THREE.WebGLRenderer({ canvas });
-renderer.setSize(window.innerWidth, window.innerHeight);
+//   const dir = vector.sub(sceneManager.camera.position).normalize();
+//   const distance = -sceneManager.camera.position.z / dir.z;
+//   const pos = sceneManager.camera.position
+//     .clone()
+//     .add(dir.multiplyScalar(distance));
 
-// const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight);
-const camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 100);
-
-camera.position.z = 5;
-camera.position.x = 1;
-camera.position.y = 3;
-camera.lookAt(mesh.position);
-
-const controls = new OrbitControls(camera, canvas);
-
-const corp = new Corp();
-corp.spaces.push(new Space(1, 1, 1));
-
-scene.add(camera);
-// renderer.render(scene, camera);
-
-const tick = () => {
-  controls.update();
-
-  requestAnimationFrame(tick);
-  renderer.render(scene, camera);
-};
-
-tick();
+//   const box = new THREE.Mesh(
+//     new THREE.BoxGeometry(1, 1, 1),
+//     new THREE.MeshBasicMaterial({ color: 0xff0000 })
+//   );
+//   box.position.set(pos.x, pos.y, pos.z);
+//   sceneManager.add(box);
+// });
