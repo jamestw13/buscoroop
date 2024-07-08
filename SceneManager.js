@@ -13,7 +13,7 @@ export class SceneManager {
 
   initCamera() {
     const aspectRatio = window.innerWidth / window.innerHeight;
-    this.camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(45, aspectRatio, 0.1, 1000);
     this.camera.position.set(1, 3, 5);
     this.camera.lookAt(this.scene.position);
     this.scene.add(this.camera);
@@ -37,7 +37,7 @@ export class SceneManager {
 
       // Calculate objects intersecting the picking ray
       const intersects = raycaster.intersectObjects(this.scene.children);
-      console.log(intersects);
+      console.log(intersects, mouse);
 
       //   for (let i = 0; i < intersects.length; i++) {
       //     if (intersects[i].object === box) {
@@ -84,13 +84,14 @@ export class World {
   }
 
   initGround() {
-    const groundGeometry = new THREE.PlaneGeometry(100, 100);
+    const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
     const groundMaterial = new THREE.MeshBasicMaterial({
       color: 0x00ff00,
       side: THREE.DoubleSide,
     });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
+    ground.name = "ground";
     this.scene.add(ground);
   }
 
@@ -110,7 +111,7 @@ export class Floor {
   }
   initPad(number) {
     if (number === 1) {
-      const padGeometry = new THREE.BoxGeometry(6, 0.01, 6);
+      const padGeometry = new THREE.BoxGeometry(18, 0.0025, 18);
       const padMaterial = new THREE.MeshBasicMaterial({
         color: "#adadad",
         side: THREE.DoubleSide,
