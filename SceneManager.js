@@ -109,7 +109,7 @@ export class SceneManager {
   addOffice = (x, z, rotation = 0) => {
     this.loader.load(
       // resource URL
-      "./assets/office1.glb",
+      "office1.glb",
       (gltf) => {
         // console.log(gltf);
         gltf.scene.traverse((child) => {
