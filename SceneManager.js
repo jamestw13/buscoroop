@@ -1,5 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader";
 
 export class SceneManager {
   constructor(canvas) {
@@ -11,6 +13,19 @@ export class SceneManager {
     this.raycaster = new THREE.Raycaster();
     this.clock = new THREE.Clock();
     this.world = new World(this.scene);
+    this.loader = this.initLoader();
+    this.initGUI();
+  }
+
+  initLoader() {
+    // Instantiate a loader
+    const loader = new GLTFLoader();
+
+    // Optional: Provide a DRACOLoader instance to decode compressed mesh data
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath("/examples/jsm/libs/draco/");
+    loader.setDRACOLoader(dracoLoader);
+    return loader;
   }
 
   initCamera() {
@@ -22,7 +37,10 @@ export class SceneManager {
   }
 
   initRenderer() {
-    this.renderer = new THREE.WebGLRenderer({ canvas: this.canvas });
+    this.renderer = new THREE.WebGLRenderer({
+      canvas: this.canvas,
+      antialias: true,
+    });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
 
     // Assuming you have a 'renderer' and a 'camera' already set up
@@ -77,6 +95,43 @@ export class SceneManager {
   start() {
     this.animate();
   }
+
+  initGUI() {
+    const officeButton = document.createElement("button");
+    officeButton.textContent = "Add office";
+    officeButton.className = "button";
+    officeButton.onclick = () => {
+      this.addOffice(5, -5);
+    };
+    document.body.appendChild(officeButton);
+  }
+
+  addOffice = (x, z, rotation = 0) => {
+    this.loader.load(
+      // resource URL
+      "./assets/office1.glb",
+      (gltf) => {
+        // console.log(gltf);
+        gltf.scene.traverse((child) => {
+          if (child.isMesh) {
+            const basicMaterial = new THREE.MeshBasicMaterial({
+              color: child.material.color, // Retain the original color
+              map: child.material.map, // Retain the original texture map, if any
+            });
+            child.material = basicMaterial;
+          }
+        });
+        gltf.scene.position.set(
+          Math.random() * 10 - 5,
+          0.01,
+          Math.random() * 10 - 5
+        );
+        gltf.scene.rotation.y = rotation;
+
+        this.add(gltf.scene);
+      }
+    );
+  };
 }
 
 export class World {
@@ -89,10 +144,13 @@ export class World {
     this.initFloor();
   }
 
+  floorToY(floor) {
+    return floor * 3 - 1.5;
+  }
   initGround() {
     const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
     const groundMaterial = new THREE.MeshBasicMaterial({
-      color: 0x00ff00,
+      color: "#6C9642",
       side: THREE.DoubleSide,
     });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
