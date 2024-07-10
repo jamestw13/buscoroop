@@ -10,6 +10,7 @@ export class SceneManager {
     this.initControls();
     this.raycaster = new THREE.Raycaster();
     this.clock = new THREE.Clock();
+    this.world = new World(this.scene);
   }
 
   initCamera() {
