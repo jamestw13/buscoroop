@@ -39,7 +39,7 @@ export class SceneManager {
 
       // Calculate objects intersecting the picking ray
       const intersects = raycaster.intersectObjects(this.scene.children);
-      console.log(intersects, mouse);
+      //   console.log(intersects, mouse);
 
       //   for (let i = 0; i < intersects.length; i++) {
       //     if (intersects[i].object === box) {
@@ -61,7 +61,7 @@ export class SceneManager {
 
   add = (obj) => {
     this.scene.add(obj);
-    console.log(this.scene.children.length);
+    // console.log(this.scene.children.length);
   };
 
   animate = () => {
@@ -75,7 +75,6 @@ export class SceneManager {
   };
 
   start() {
-    console.log(this.scene);
     this.animate();
   }
 }
