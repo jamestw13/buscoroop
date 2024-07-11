@@ -11,10 +11,41 @@ export class SceneManager {
     this.initCamera();
     this.initControls();
     this.raycaster = new THREE.Raycaster();
+    this.mouse = new THREE.Vector2();
     this.clock = new THREE.Clock();
     this.world = new World(this.scene);
     this.loader = this.initLoader();
+    this.mode = "view";
     this.initGUI();
+    this.newObject = null;
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.office = this.loader.load("office1.glb", (gltf) => {
+      gltf.scene.traverse((child) => {
+        if (child.isMesh) {
+          const basicMaterial = new THREE.MeshBasicMaterial({
+            color: child.material.color, // Retain the original color
+            map: child.material.map, // Retain the original texture map, if any
+          });
+          child.material = basicMaterial;
+        }
+      });
+    });
+  }
+
+  onMouseMove(e) {
+    if (this.mode === "build") {
+      this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+      this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+
+      const intersects = this.raycaster.intersectObjects(this.scene.children);
+      const groundIntersect = intersects.find(
+        (intersect) => intersect.object.name === "ground"
+      );
+      if (groundIntersect) {
+        this.office.position.copy(groundIntersect);
+      }
+    }
   }
 
   initLoader() {
@@ -35,42 +66,16 @@ export class SceneManager {
     this.camera.lookAt(this.scene.position);
     this.scene.add(this.camera);
   }
-
+  setMode(mode) {
+    this.mode = mode;
+    document.getElementById("status").textContent = mode;
+  }
   initRenderer() {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
     });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-
-    // Assuming you have a 'renderer' and a 'camera' already set up
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
-    const onMouseClick = (event) => {
-      // Calculate mouse position in normalized device coordinates (-1 to +1) for both components
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-      // Update the picking ray with the camera and mouse position
-      raycaster.setFromCamera(mouse, this.camera);
-
-      // Calculate objects intersecting the picking ray
-      const intersects = raycaster.intersectObjects(this.scene.children);
-      //   console.log(intersects, mouse);
-
-      //   for (let i = 0; i < intersects.length; i++) {
-      //     if (intersects[i].object === box) {
-      //       // Assuming 'box' is your box mesh
-      //       // Perform your action here
-      //       console.log("Box clicked");
-      //       break;
-      //     }
-      //   }
-    };
-
-    // Add event listener for mouse clicks
-    this.renderer.domElement.addEventListener("click", onMouseClick, false);
   }
 
   initControls() {
@@ -87,6 +92,8 @@ export class SceneManager {
     // if (office) {
     //   office.position.x = Math.sin(this.clock.getElapsedTime()) * 2;
     // }
+    if (this.mode === "build") {
+    }
     this.controls.update();
     this.renderer.render(this.scene, this.camera);
     requestAnimationFrame(this.animate);
@@ -104,14 +111,20 @@ export class SceneManager {
       this.addOffice(5, -5);
     };
     document.body.appendChild(officeButton);
+
+    const statusArea = document.createElement("div");
+    statusArea.textContent = this.mode;
+    statusArea.id = "status";
+
+    document.body.appendChild(statusArea);
   }
 
   addOffice = (x, z, rotation = 0) => {
+    this.setMode(this.mode === "build" ? "view" : "build");
     this.loader.load(
       // resource URL
       "office1.glb",
       (gltf) => {
-        // console.log(gltf);
         gltf.scene.traverse((child) => {
           if (child.isMesh) {
             const basicMaterial = new THREE.MeshBasicMaterial({
@@ -121,14 +134,9 @@ export class SceneManager {
             child.material = basicMaterial;
           }
         });
-        gltf.scene.position.set(
-          Math.random() * 10 - 5,
-          0.01,
-          Math.random() * 10 - 5
-        );
-        gltf.scene.rotation.y = rotation;
+        this.office = gltf.scene;
 
-        this.add(gltf.scene);
+        this.add(this.office);
       }
     );
   };
@@ -182,6 +190,7 @@ export class Floor {
       });
       const pad = new THREE.Mesh(padGeometry, padMaterial);
       pad.position.set(0, 0, 0);
+      pad.name = "floor1";
       this.scene.add(pad);
       return pad;
     }
